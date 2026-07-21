@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng Lò Phản Ứng Hạt Nhân (Học Tập)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-yellow: #facc15;
+            --accent-red: #f87171;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            color: var(--accent-blue);
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        /* Lõi lò hiển thị trực quan */
+        .reactor-core-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 220px;
+            position: relative;
+        }
+
+        .core-visual {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #38bdf8 0%, #0369a1 70%);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+            transition: background 0.5s, box-shadow 0.5s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* Metrics */
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 1rem;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        /* Controls */
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-scram {
+            background-color: var(--accent-red);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .btn-toggle {
+            background-color: #475569;
+            color: white;
+        }
+
+        .btn-toggle.active {
+            background-color: var(--accent-green);
+            color: #0f172a;
+        }
+
+        /* Status log / Warnings */
+        .status-box {
+            grid-column: 1 / -1;
+            background-color: #1e293b;
+            border-left: 5px solid var(--accent-blue);
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            min-height: 50px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .warning-text {
+            color: var(--accent-red);
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MÔ PHỎNG LÒ PHẢN ỨNG HẠT NHÂN</h1>
+    <div class="subtitle">Mô hình học tập mô phỏng vật lý lò phản ứng cơ bản (PWR)</div>
+
+    <div class="dashboard">
+        <!-- Bảng điều khiển (Controls) -->
+        <div class="card">
+            <h2>Hệ Thống Điều Khiển</h2>
+            
+            <div class="control-group">
+                <label for="controlRods">Thanh điều khiển (Độ sâu chèn): <span id="rodVal" class="metric-value">50</span>%</label>
+                <!-- Kéo lên = chèn nhiều = giảm phản ứng; Kéo xuống = rút ra = tăng phản ứng -->
+                <input type="range" id="controlRods" min="0" max="100" value="50">
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">0%: Rút hoàn toàn (Phản ứng max) | 100%: Chèn tối đa (Đóng lò)</div>
+            </div>
+
+            <div class="control-group">
+                <label>Hệ thống bơm nước làm mát (Coolant Pump):</label>
+                <div class="btn-container">
+                    <button id="pumpBtn" class="btn-toggle active" onclick="togglePump()">BƠM: BẬT</button>
+                </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 30px;">
+                <button class="btn-scram" onclick="triggerScram()">🚨 SCRAM (NGẮT KHẨN CẤP)</button>
+            </div>
+        </div>
+
+        <!-- Bảng hiển thị thông số (Telemetry) -->
+        <div class="card">
+            <h2>Thông Số Vận Hành</h2>
+            
+            <div class="reactor-core-container">
+                <div id="coreVisual" class="core-visual">BÌNH THƯỜNG</div>
+            </div>
+
+            <div class="metric-row">
+                <span>Trạng thái Lò:</span>
+                <span id="statusText" class="metric-value" style="color: var(--accent-green);">HOẠT ĐỘNG ỔN ĐỊNH</span>
+            </div>
+            <div class="metric-row">
+                <span>Công suất Nhiệt (Power):</span>
+                <span id="powerVal" class="metric-value">50.0</span>%
+            </div>
+            <div class="metric-row">
+                <span>Nhiệt độ Lõi (Core Temp):</span>
+                <span id="tempVal" class="metric-value">300.0</span> °C
+            </div>
+            <div class="metric-row">
+                <span>Hiệu suất Tua-bin:</span>
+                <span id="turbVal" class="metric-value">33.3</span>%
+            </div>
+        </div>
+
+        <!-- Nhật ký trạng thái / Cảnh báo -->
+        <div class="status-box" id="logBox">
+            [System]: Khởi tạo hệ thống mô phỏng lò phản ứng thành công. Mọi hệ thống hoạt động bình thường.
+        </div>
+    </div>
+
+    <script>
+        // Các biến trạng thái lò phản ứng
+        let state = {
+            rodInsertion: 50,      // % độ sâu thanh điều khiển (0% = rút ra, 100% = đóng)
+            power: 50.0,           // % công suất nhiệt
+            temperature: 300.0,    // °C nhiệt độ lõi
+            pumpActive: true,      // Bơm làm mát đang bật hay tắt
+            isMeltdown: false,     // Trạng thái nóng chảy lõi
+            scrammed: false
+        };
+
+        const rodSlider = document.getElementById('controlRods');
+        const rodValLabel = document.getElementById('rodVal');
+        const powerValLabel = document.getElementById('powerVal');
+        const tempValLabel = document.getElementById('tempVal');
+        const turbValLabel = document.getElementById('turbVal');
+        const statusText = document.getElementById('statusText');
+        const coreVisual = document.getElementById('coreVisual');
+        const pumpBtn = document.getElementById('pumpBtn');
+        const logBox = document.getElementById('logBox');
+
+        // Lắng nghe sự kiện thanh trượt
+        rodSlider.addEventListener('input', (e) => {
+            if (state.isMeltdown) return;
+            state.rodInsertion = parseInt(e.target.value);
+            rodValLabel.innerText = state.rodInsertion;
+            if(state.scrammed && state.rodInsertion < 100) {
+                // Nếu đang scram mà người dùng kéo thanh thì gỡ trạng thái scram thủ công
+                state.scrammed = false;
+            }
+        });
+
+        function togglePump() {
+            if (state.isMeltdown) return;
+            state.pumpActive = !state.pumpActive;
+            if (state.pumpActive) {
+                pumpBtn.innerText = "BƠM: BẬT";
+                pumpBtn.classList.add('active');
+                addLog("Hệ thống bơm làm mát đã được BẬT.");
+            } else {
+                pumpBtn.innerText = "BƠM: TẮT";
+                pumpBtn.classList.remove('active');
+                addLog("CẢNH BÁO: Hệ thống bơm làm mát đã bị TẮT!", true);
+            }
+        }
+
+        function triggerScram() {
+            if (state.isMeltdown) return;
+            state.scrammed = true;
+            state.rodInsertion = 100;
+            rodSlider.value = 100;
+            rodValLabel.innerText = "100";
+            addLog("🚨 ĐÃ KÍCH HOẠT SCRAM! Toàn bộ thanh điều khiển được thả hoàn toàn vào lõi.", true);
+        }
+
+        function addLog(message, isWarning = false) {
+            const timeStr = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            if (isWarning) {
+                logEntry.className = "warning-text";
+            }
+            logEntry.innerText = `[${timeStr}] ${message}`;
+            logBox.appendChild(logEntry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // Vòng lặp vật lý mô phỏng (chạy mỗi 100ms)
+        function updatePhysics() {
+            if (state.isMeltdown) return;
+
+            // 1. Tính toán Công suất mục tiêu dựa trên thanh điều khiển
+            // Thanh chèn (rodInsertion) càng cao thì công suất càng thấp.
+            // Công suất mục tiêu = 100 - rodInsertion
+            let targetPower = 100 - state.rodInsertion;
+            
+            // Mô phỏng độ trễ quán tính của phản ứng dây chuyền
+            let powerDiff = targetPower - state.power;
+            state.power += powerDiff * 0.1;
+            if (state.power < 0) state.power = 0;
+
+            // 2. Tính toán Nhiệt độ
+            // Nhiệt lượng sinh ra tỉ lệ thuận với Công suất
+            let heatGenerated = (state.power / 100) * 15; // Lượng nhiệt sinh ra mỗi chu kỳ
+            
+            // Khả năng giải nhiệt của hệ thống làm mát
+            let coolingCapacity = state.pumpActive ? 12.5 : 1.0; 
+
+            // Cân bằng nhiệt độ hướng tới điểm cân bằng
+            let tempDelta = heatGenerated - coolingCapacity;
+            state.temperature += tempDelta;
+
+            // Nhiệt độ môi trường chuẩn là 20°C
+            if (state.temperature < 20) state.temperature = 20;
+
+            // 3. Kiểm tra điều kiện tai nạn (Meltdown khi > 800°C)
+            if (state.temperature >= 800) {
+                state.isMeltdown = true;
+                statusText.innerText = "THẢM HỌA: NÓNG CHẢY LÕI (MELTDOWN)!";
+                statusText.style.color = "var(--accent-red)";
+                coreVisual.style.background = "radial-gradient(circle, #ffffff 0%, #ef4444 60%, #7f1d1d 100%)";
+                coreVisual.style.boxShadow = "0 0 40px #ef4444";
+                coreVisual.innerText = "MELTDOWN!";
+                addLog("🚨 LỖI NGHIÊM TRỌNG: Nhiệt độ lõi đã vượt ngưỡng 800°C. Lõi lò đã bị nóng chảy!", true);
+                return;
+            }
+
+            // 4. Cập nhật giao diện trực quan theo nhiệt độ
+            let efficiency = Math.min(45, Math.max(10, (state.temperature - 200) / 15));
+            if (state.temperature < 200) efficiency = 0;
+
+            if (state.temperature > 650) {
+                statusText.innerText = "NGUY HIỂM: NHIỆT ĐỘ QUÁ CAO!";
+                statusText.style.color = "var(--accent-red)";
+                coreVisual.style.background = "radial-gradient(circle, #f87171 0%, #b91c1c 80%)";
+                coreVisual.style.boxShadow = "0 0 30px #f87171";
+                coreVisual.innerText = "QUÁ NHIỆT";
+            } else if (state.temperature > 500) {
+                statusText.innerText = "CẢNH BÁO: TẢI CAO";
+                statusText.style.color = "var(--accent-yellow)";
+                coreVisual.style.background = "radial-gradient(circle, #facc15 0%, #b45309 80%)";
+                coreVisual.style.boxShadow = "0 0 25px #facc15";
+                coreVisual.innerText = "CẢNH BÁO";
+            } else {
+                statusText.innerText = state.scrammed ? "ĐÃ SCRAM (ĐÓNG LÒ)" : "HOẠT ĐỘNG ỔN ĐỊNH";
+                statusText.style.color = state.scrammed ? "var(--accent-yellow)" : "var(--accent-green)";
+                coreVisual.style.background = "radial-gradient(circle, #38bdf8 0%, #0369a1 70%)";
+                coreVisual.style.boxShadow = "0 0 20px rgba(56, 189, 248, 0.5)";
+                coreVisual.innerText = "BÌNH THƯỜNG";
+            }
+
+            // Cập nhật giá trị lên màn hình
+            powerValLabel.innerText = state.power.toFixed(1);
+            tempValLabel.innerText = state.temperature.toFixed(1);
+            turbValLabel.innerText = efficiency.toFixed(1);
+        }
+
+        // Chạy vòng lặp mô phỏng mỗi 100ms
+        setInterval(updatePhysics, 100);
+    </script>
+</body>
+</html>
