@@ -3,463 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mô Phỏng Lò Phản Ứng Hạt Nhân Nâng Cao (Học Tập)</title>
-    <style>
-        :root {
-            --bg-color: #0b0f19;
-            --panel-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-blue: #38bdf8;
-            --accent-green: #4ade80;
-            --accent-yellow: #facc15;
-            --accent-red: #f87171;
-            --border-color: #334155;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            margin: 0 0 5px 0;
-            color: var(--accent-blue);
-            text-align: center;
-            font-size: 1.6rem;
-        }
-
-        .subtitle {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        @media (max-width: 950px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background-color: var(--panel-bg);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.05rem;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
-            color: #e2e8f0;
-        }
-
-        /* Lõi lò hiển thị trực quan */
-        .reactor-core-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 160px;
-            position: relative;
-        }
-
-        .core-visual {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #38bdf8 0%, #0369a1 70%);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
-            transition: background 0.5s, box-shadow 0.5s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            text-align: center;
-            padding: 5px;
-        }
-
-        /* Metrics */
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            font-size: 0.9rem;
-        }
-
-        .metric-value {
-            font-weight: bold;
-            font-family: monospace;
-        }
-
-        /* Controls */
-        .control-group {
-            margin-bottom: 15px;
-        }
-
-        .control-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .btn-container {
-            display: flex;
-            gap: 8px;
-        }
-
-        button {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: opacity 0.2s, background-color 0.2s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .btn-scram {
-            background-color: var(--accent-red);
-            color: white;
-            font-size: 0.95rem;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .btn-toggle {
-            background-color: #475569;
-            color: white;
-        }
-
-        .btn-toggle.active {
-            background-color: var(--accent-green);
-            color: #0f172a;
-        }
-
-        /* Status log / Warnings */
-        .status-box {
-            grid-column: 1 / -1;
-            background-color: #0f172a;
-            border-left: 4px solid var(--accent-blue);
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            min-height: 40px;
-            max-height: 100px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-        }
-
-        .warning-text {
-            color: var(--accent-red);
-            font-weight: bold;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.4; }
-            100% { opacity: 1; }
-        }
-    </style>
+    <title>Smart Oven Control Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome để dùng các icon trực quan -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <h1>MÔ PHỎNG LÒ PHẢN ỨNG HẠT NHÂN NÂNG CAO</h1>
-    <div class="subtitle">Bảng điều khiển hệ thống năng lượng nguyên tử toàn diện</div>
-
-    <div class="dashboard">
-        <!-- 1. Bảng điều khiển (Controls) -->
-        <div class="card">
-            <h2>Hệ Thống Điều Khiển</h2>
+    <div class="oven-container">
+        <!-- Bảng điều khiển phía trên -->
+        <div class="control-panel">
             
+            <!-- Nút vặn bên trái: Chọn chức năng -->
             <div class="control-group">
-                <label for="controlRods">Thanh điều khiển (Chèn): <span id="rodVal" class="metric-value">50</span>%</label>
-                <input type="range" id="controlRods" min="0" max="100" value="50">
-                <div style="font-size: 0.75rem; color: #94a3b8;">0%: Rút hoàn toàn (Max) | 100%: Chèn tối đa (Khóa)</div>
-            </div>
-
-            <div class="control-group">
-                <label>Bơm nước làm mát chính (Coolant Pump):</label>
-                <div class="btn-container">
-                    <button id="pumpBtn" class="btn-toggle active" onclick="togglePump()">BƠM: BẬT</button>
+                <div class="knob-container">
+                    <div class="knob">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                <div class="icons-grid">
+                    <i class="fa-solid fa-fire active" title="Nướng trên/dưới"></i>
+                    <i class="fa-solid fa-wind" title="Đối lưu (Convection)"></i>
+                    <i class="fa-solid fa-pizza-slice" title="Nướng Pizza"></i>
+                    <i class="fa-solid fa-bacon" title="Nướng thanh nhiệt"></i>
                 </div>
             </div>
 
-            <div class="control-group">
-                <label>Van xả áp khẩn cấp (Pressurizer Relief):</label>
-                <div class="btn-container">
-                    <button id="valveBtn" class="btn-toggle" onclick="toggleValve()">VAN XẢ: ĐÓNG</button>
+            <!-- Màn hình OLED trung tâm -->
+            <div class="oled-screen">
+                <div class="screen-header">
+                    <span class="brand-mode">SMART OVEN PRO</span>
+                    <i class="fa-solid fa-wifi wifi-icon"></i>
+                </div>
+                <div class="screen-body">
+                    <div class="status-row">
+                        <span class="label">Chế độ:</span>
+                        <span class="value">Nướng gà đối lưu</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">Thời gian:</span>
+                        <span class="value">01:45 / 02:00 (180°C)</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">Trạng thái:</span>
+                        <span class="value active-status">Đang nướng...</span>
+                    </div>
+                </div>
+                <!-- Thanh công cụ cảm ứng phụ dưới màn hình -->
+                <div class="screen-footer-icons">
+                    <i class="fa-solid fa-lightbulb" title="Đèn lò"></i>
+                    <i class="fa-solid fa-clock" title="Hẹn giờ"></i>
+                    <i class="fa-solid fa-temperature-high" title="Cảm biến nhiệt"></i>
+                    <i class="fa-solid fa-lock" title="Khóa trẻ em"></i>
                 </div>
             </div>
 
-            <button class="btn-scram" onclick="triggerScram()">🚨 SCRAM (NGẮT KHẨN CẤP)</button>
+            <!-- Nút vặn bên phải: Chỉnh nhiệt độ -->
+            <div class="control-group">
+                <div class="knob-container">
+                    <div class="knob right-knob">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                <div class="temp-labels">
+                    <span>50°C</span>
+                    <span>100°C</span>
+                    <span class="highlight-temp">180°C</span>
+                    <span>230°C</span>
+                    <span>250°C</span>
+                </div>
+            </div>
+
         </div>
 
-        <!-- 2. Thông số vận hành & Lõi lò -->
-        <div class="card">
-            <h2>Thông Số Vật Lý Lõi</h2>
-            
-            <div class="reactor-core-container">
-                <div id="coreVisual" class="core-visual">BÌNH THƯỜNG</div>
+        <!-- Cửa kính lò nướng (Hiệu ứng khoang lò bên trong) -->
+        <div class="oven-door">
+            <div class="handle-bar"></div>
+            <div class="window-glass">
+                <div class="interior-light">
+                    <!-- Mô phỏng thực phẩm bên trong lò -->
+                    <div class="roasted-chicken">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Đang nướng gà vàng giòn</span>
+                    </div>
+                </div>
             </div>
-
-            <div class="metric-row">
-                <span>Trạng thái:</span>
-                <span id="statusText" class="metric-value" style="color: var(--accent-green);">ỔN ĐỊNH</span>
+            <div class="oven-brand">
+                <span>Miele</span>
+                <span class="sub-brand">Generation 7000</span>
             </div>
-            <div class="metric-row">
-                <span>Công suất Nhiệt:</span>
-                <span id="powerVal" class="metric-value">50.0</span>%
-            </div>
-            <div class="metric-row">
-                <span>Nhiệt độ Lõi:</span>
-                <span id="tempVal" class="metric-value">300.0</span> °C
-            </div>
-            <div class="metric-row">
-                <span>Áp suất Mạch sơ cấp:</span>
-                <span id="pressureVal" class="metric-value">15.5</span> MPa
-            </div>
-            <div class="metric-row">
-                <span>Mức nước bồn chứa:</span>
-                <span id="waterVal" class="metric-value">100.0</span>%
-            </div>
-        </div>
-
-        <!-- 3. Hệ thống phát điện & Tua-bin -->
-        <div class="card">
-            <h2>Hệ Thống Phát Điện (Boiler & Turbine)</h2>
-            
-            <div class="control-group" style="margin-top: 10px;">
-                <label>Van hơi cấp tua-bin (Turbine Steam Valve): <span id="turbineVal" class="metric-value">80</span>%</label>
-                <input type="range" id="turbineValve" min="0" max="100" value="80">
-                <div style="font-size: 0.75rem; color: #94a3b8;">Điều chỉnh lượng hơi nước đưa sang máy phát điện.</div>
-            </div>
-
-            <div class="metric-row" style="margin-top: 25px;">
-                <span>Lưu lượng Hơi nước:</span>
-                <span id="steamFlowVal" class="metric-value">80.0</span> kg/s
-            </div>
-            <div class="metric-row">
-                <span>Công suất Phát điện:</span>
-                <span id="elecPowerVal" class="metric-value" style="color: var(--accent-green);">450.0</span> MWe
-            </div>
-            <div class="metric-row">
-                <span>Hiệu suất Tua-bin:</span>
-                <span id="turbEffVal" class="metric-value">33.0</span>%
-            </div>
-        </div>
-
-        <!-- Nhật ký trạng thái / Cảnh báo -->
-        <div class="status-box" id="logBox">
-            [System]: Khởi tạo mô phỏng nhà máy điện hạt nhân thành công. Các hệ thống phụ trợ đã sẵn sàng.
         </div>
     </div>
 
-    <script>
-        let state = {
-            rodInsertion: 50,      // % thanh điều khiển
-            power: 50.0,           // % công suất nhiệt
-            temperature: 300.0,    // °C nhiệt độ lõi
-            pressure: 15.5,        // MPa áp suất (Chuẩn ~15.5 MPa)
-            waterLevel: 100.0,     // % mức nước làm mát
-            pumpActive: true,      // Trạng thái bơm
-            valveOpen: false,      // Van xả áp
-            turbineValvePos: 80,   // % độ mở van hơi tua-bin
-            isMeltdown: false,     // Nóng chảy
-            scrammed: false
-        };
-
-        const rodSlider = document.getElementById('controlRods');
-        const turbineSlider = document.getElementById('turbineValve');
-        const rodValLabel = document.getElementById('rodVal');
-        const turbineValLabel = document.getElementById('turbineVal');
-        const powerValLabel = document.getElementById('powerVal');
-        const tempValLabel = document.getElementById('tempVal');
-        const pressureValLabel = document.getElementById('pressureVal');
-        const waterValLabel = document.getElementById('waterVal');
-        const steamFlowLabel = document.getElementById('steamFlowVal');
-        const elecPowerLabel = document.getElementById('elecPowerVal');
-        const turbEffLabel = document.getElementById('turbEffVal');
-        const statusText = document.getElementById('statusText');
-        const coreVisual = document.getElementById('coreVisual');
-        const pumpBtn = document.getElementById('pumpBtn');
-        const valveBtn = document.getElementById('valveBtn');
-        const logBox = document.getElementById('logBox');
-
-        rodSlider.addEventListener('input', (e) => {
-            if (state.isMeltdown) return;
-            state.rodInsertion = parseInt(e.target.value);
-            rodValLabel.innerText = state.rodInsertion;
-            if(state.scrammed && state.rodInsertion < 100) state.scrammed = false;
-        });
-
-        turbineSlider.addEventListener('input', (e) => {
-            if (state.isMeltdown) return;
-            state.turbineValvePos = parseInt(e.target.value);
-            turbineValLabel.innerText = state.turbineValvePos;
-        });
-
-        function togglePump() {
-            if (state.isMeltdown) return;
-            state.pumpActive = !state.pumpActive;
-            if (state.pumpActive) {
-                pumpBtn.innerText = "BƠM: BẬT";
-                pumpBtn.classList.add('active');
-                addLog("Hệ thống bơm làm mát chính đã được BẬT.");
-            } else {
-                pumpBtn.innerText = "BƠM: TẮT";
-                pumpBtn.classList.remove('active');
-                addLog("CẢNH BÁO: Bơm làm mát chính đã dừng hoạt động!", true);
-            }
-        }
-
-        function toggleValve() {
-            if (state.isMeltdown) return;
-            state.valveOpen = !state.valveOpen;
-            if (state.valveOpen) {
-                valveBtn.innerText = "VAN XẢ: MỞ";
-                valveBtn.classList.add('active');
-                addLog("Đã mở van xả áp khẩn cấp. Áp suất mạch sơ cấp đang giảm.");
-            } else {
-                valveBtn.innerText = "VAN XẢ: ĐÓNG";
-                valveBtn.classList.remove('active');
-                addLog("Đã đóng van xả áp.");
-            }
-        }
-
-        function triggerScram() {
-            if (state.isMeltdown) return;
-            state.scrammed = true;
-            state.rodInsertion = 100;
-            rodSlider.value = 100;
-            rodValLabel.innerText = "100";
-            addLog("🚨 ĐÃ KÍCH HOẠT SCRAM KHẨN CẤP! Thanh điều khiển chèn hoàn toàn vào lõi.", true);
-        }
-
-        function addLog(message, isWarning = false) {
-            const timeStr = new Date().toLocaleTimeString();
-            const logEntry = document.createElement('div');
-            if (isWarning) logEntry.className = "warning-text";
-            logEntry.innerText = `[${timeStr}] ${message}`;
-            logBox.appendChild(logEntry);
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        function updatePhysics() {
-            if (state.isMeltdown) return;
-
-            // 1. Công suất nhiệt
-            let targetPower = 100 - state.rodInsertion;
-            state.power += (targetPower - state.power) * 0.1;
-            if (state.power < 0) state.power = 0;
-
-            // 2. Mức nước bồn chứa
-            if (state.pumpActive) {
-                if (state.waterLevel < 100) state.waterLevel += 0.5;
-            } else {
-                // Khi mất bơm và công suất cao, nước bay hơi nhanh
-                let boilRate = 0.2 + (state.power / 50);
-                state.waterLevel -= boilRate;
-                if (state.waterLevel < 0) state.waterLevel = 0;
-            }
-
-            // 3. Nhiệt độ & Áp suất
-            let heatGenerated = (state.power / 100) * 14;
-            let coolingCapacity = state.pumpActive ? 11.5 : 0.8;
-            if (state.waterLevel <= 0) coolingCapacity = 0.1; // Cạn nước -> mất khả năng giải nhiệt hoàn toàn
-
-            let tempDelta = heatGenerated - coolingCapacity;
-            state.temperature += tempDelta;
-            if (state.temperature < 20) state.temperature = 20;
-
-            // Mô phỏng áp suất dựa trên nhiệt độ và trạng thái van xả
-            let targetPressure = 5 + (state.temperature / 40);
-            if (state.valveOpen) targetPressure = Math.max(1, targetPressure - 4);
-            state.pressure += (targetPressure - state.pressure) * 0.1;
-
-            // 4. Sản xuất điện năng qua tua-bin
-            let steamFlow = (state.power * (state.turbineValvePos / 100)) * (state.waterLevel / 100);
-            let elecPower = steamFlow * 5.5; // Quy đổi ra MWe
-            let turbEff = Math.min(42, Math.max(5, (state.temperature - 180) / 12));
-            if (state.temperature < 180 || state.waterLevel < 10) {
-                elecPower = 0;
-                turbEff = 0;
-            }
-
-            // 5. Kiểm tra thảm họa (Meltdown)
-            if (state.temperature >= 800 || state.waterLevel <= 0 && state.temperature > 500) {
-                state.isMeltdown = true;
-                statusText.innerText = "THẢM HỌA: NÓNG CHẢY LÕI (MELTDOWN)!";
-                statusText.style.color = "var(--accent-red)";
-                coreVisual.style.background = "radial-gradient(circle, #ffffff 0%, #ef4444 60%, #7f1d1d 100%)";
-                coreVisual.style.boxShadow = "0 0 30px #ef4444";
-                coreVisual.innerText = "MELTDOWN!";
-                addLog("🚨 THẢM HỌA: Nhiệt độ vượt ngưỡng hoặc cạn kiệt nước làm mát dẫn đến nóng chảy lõi!", true);
-                return;
-            }
-
-            // 6. Cập nhật giao diện trực quan
-            if (state.temperature > 650 || state.pressure > 22) {
-                statusText.innerText = "CẢNH BÁO QUÁ NHIỆT / ÁP SUẤT";
-                statusText.style.color = "var(--accent-red)";
-                coreVisual.style.background = "radial-gradient(circle, #f87171 0%, #b91c1c 80%)";
-                coreVisual.style.boxShadow = "0 0 20px #f87171";
-                coreVisual.innerText = "NGUY HIỂM";
-            } else if (state.temperature > 500) {
-                statusText.innerText = "TẢI CAO";
-                statusText.style.color = "var(--accent-yellow)";
-                coreVisual.style.background = "radial-gradient(circle, #facc15 0%, #b45309 80%)";
-                coreVisual.style.boxShadow = "0 0 15px #facc15";
-                coreVisual.innerText = "CẢNH BÁO";
-            } else {
-                statusText.innerText = state.scrammed ? "ĐÃ SCRAM (AN TOÀN)" : "VẬN HÀNH ỔN ĐỊNH";
-                statusText.style.color = state.scrammed ? "var(--accent-yellow)" : "var(--accent-green)";
-                coreVisual.style.background = "radial-gradient(circle, #38bdf8 0%, #0369a1 70%)";
-                coreVisual.style.boxShadow = "0 0 15px rgba(56, 189, 248, 0.5)";
-                coreVisual.innerText = "BÌNH THƯỜNG";
-            }
-
-            powerValLabel.innerText = state.power.toFixed(1);
-            tempValLabel.innerText = state.temperature.toFixed(1);
-            pressureValLabel.innerText = state.pressure.toFixed(2);
-            waterValLabel.innerText = state.waterLevel.toFixed(1);
-            steamFlowLabel.innerText = steamFlow.toFixed(1);
-            elecPowerLabel.innerText = elecPower.toFixed(1);
-            turbEffLabel.innerText = turbEff.toFixed(1);
-        }
-
-        setInterval(updatePhysics, 100);
-    </script>
 </body>
 </html>
