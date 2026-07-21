@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuclear Fusion Reactor Control System</title>
+    <title>Advanced Tokamak Fusion Reactor - MK-VII Simulation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #02060c;
-            --panel-bg: rgba(8, 15, 30, 0.85);
+            --bg-dark: #010408;
+            --panel-bg: rgba(6, 12, 24, 0.9);
             --border-glow: #00f3ff;
             --plasma-blue: #00e1ff;
             --plasma-purple: #9d00ff;
             --warn-amber: #ffaa00;
             --danger-red: #ff3333;
+            --success-green: #00ff66;
             --text-main: #c0d8f0;
             --font-sci: 'Orbitron', sans-serif;
             --font-mono: 'Share Tech Mono', monospace;
@@ -25,161 +26,199 @@
         body {
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 50% 50%, #051937 0%, #02060c 80%),
-                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
+                radial-gradient(circle at 50% 50%, #031024 0%, #010408 85%),
+                linear-gradient(rgba(0, 243, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 25px 25px, 25px 25px;
             font-family: var(--font-sci);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .reactor-container {
-            width: 1200px;
+            width: 1350px;
             background: var(--panel-bg);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 8px;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.15), inset 0 0 25px rgba(0, 243, 255, 0.05);
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
 
+        /* HEADER */
         .console-header {
-            background: linear-gradient(90deg, #051428 0%, #0a254a 50%, #051428 100%);
+            background: linear-gradient(90deg, #041022 0%, #0b2246 50%, #041022 100%);
             border-bottom: 2px solid var(--border-glow);
-            padding: 12px 20px;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .system-status { display: flex; align-items: center; gap: 10px; }
         .status-indicator {
-            width: 10px; height: 10px; background: var(--danger-red);
+            width: 12px; height: 12px; background: var(--danger-red);
             border-radius: 50%; box-shadow: 0 0 10px var(--danger-red);
             transition: 0.3s;
         }
         .status-indicator.active {
-            background: #00ff66; box-shadow: 0 0 10px #00ff66;
+            background: var(--success-green); box-shadow: 0 0 12px var(--success-green);
             animation: pulse-green 2s infinite;
         }
-
-        .system-title { font-weight: 800; letter-spacing: 2px; color: #fff; }
-        .global-metrics { display: flex; gap: 25px; }
-        .metric-item { display: flex; flex-direction: column; align-items: center; }
-        .m-label { font-size: 9px; color: #6a8caf; }
-        .m-val { font-family: var(--font-mono); font-size: 14px; font-weight: bold; }
-        .m-val.warning { color: var(--warn-amber); }
-        .m-val.success { color: #00ff66; }
-        .system-time { font-family: var(--font-mono); color: var(--plasma-blue); font-size: 14px; }
-
-        .dashboard-body {
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            gap: 15px; padding: 20px;
+        .status-indicator.danger {
+            background: var(--danger-red); box-shadow: 0 0 15px var(--danger-red);
+            animation: pulse-red 0.5s infinite;
         }
 
-        .panel-section { display: flex; flex-direction: column; gap: 15px; }
+        .system-title { font-weight: 800; letter-spacing: 2px; color: #fff; font-size: 13px; }
+        .global-metrics { display: flex; gap: 20px; }
+        .metric-item { display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(0,243,255,0.1); }
+        .m-label { font-size: 8px; color: #6a8caf; }
+        .m-val { font-family: var(--font-mono); font-size: 13px; font-weight: bold; }
+        .m-val.warning { color: var(--warn-amber); }
+        .m-val.success { color: var(--success-green); }
+        .m-val.danger { color: var(--danger-red); }
+        .system-time { font-family: var(--font-mono); color: var(--plasma-blue); font-size: 13px; }
+
+        /* BODY LAYOUT */
+        .dashboard-body {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 12px; padding: 15px;
+        }
+
+        .panel-section { display: flex; flex-direction: column; gap: 10px; }
         .section-title {
-            font-size: 11px; font-weight: 800; letter-spacing: 1px;
+            font-size: 10px; font-weight: 800; letter-spacing: 1px;
             color: var(--plasma-blue); border-left: 3px solid var(--plasma-blue);
-            padding-left: 8px; margin-bottom: 5px;
+            padding-left: 6px; margin-bottom: 2px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .control-card {
-            background: rgba(2, 8, 18, 0.7);
+            background: rgba(2, 6, 14, 0.75);
             border: 1px solid rgba(0, 243, 255, 0.15);
-            border-radius: 6px; padding: 12px; position: relative;
+            border-radius: 6px; padding: 10px; position: relative;
         }
 
-        .card-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; margin-bottom: 10px; }
-        .badge { font-size: 9px; padding: 2px 6px; border-radius: 3px; font-family: var(--font-mono); }
-        .badge.active { background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid rgba(0,255,102,0.3); }
+        .card-head { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 600; margin-bottom: 8px; }
+        .badge { font-size: 8px; padding: 2px 5px; border-radius: 3px; font-family: var(--font-mono); }
+        .badge.active { background: rgba(0, 255, 102, 0.15); color: var(--success-green); border: 1px solid rgba(0,255,102,0.3); }
         .badge.warning { background: rgba(255, 170, 0, 0.15); color: var(--warn-amber); border: 1px solid rgba(255,170,0,0.3); }
         .badge.danger { background: rgba(255, 51, 51, 0.15); color: var(--danger-red); border: 1px solid rgba(255,51,51,0.3); }
 
-        .slider-group label { display: flex; justify-content: space-between; font-size: 10px; color: #8ab4f8; margin-bottom: 5px; font-family: var(--font-mono); }
-        .sci-slider { width: 100%; accent-color: var(--plasma-blue); cursor: pointer; }
+        .slider-group { margin-bottom: 6px; }
+        .slider-group label { display: flex; justify-content: space-between; font-size: 9px; color: #8ab4f8; margin-bottom: 3px; font-family: var(--font-mono); }
+        .sci-slider { width: 100%; accent-color: var(--plasma-blue); cursor: pointer; height: 4px; }
 
-        .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .s-box { background: rgba(0, 243, 255, 0.03); border: 1px solid rgba(0, 243, 255, 0.1); padding: 6px; border-radius: 4px; display: flex; flex-direction: column; }
-        .s-box span { font-size: 8px; color: #78909c; }
-        .s-box b { font-size: 11px; font-family: var(--font-mono); color: #fff; }
+        .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .s-box { background: rgba(0, 243, 255, 0.03); border: 1px solid rgba(0, 243, 255, 0.1); padding: 5px; border-radius: 4px; display: flex; flex-direction: column; }
+        .s-box span { font-size: 7px; color: #78909c; }
+        .s-box b { font-size: 10px; font-family: var(--font-mono); color: #fff; }
 
-        .center-panel { display: flex; flex-direction: column; gap: 15px; }
+        /* CENTER VIEWPORT */
+        .center-panel { display: flex; flex-direction: column; gap: 10px; }
         .plasma-viewport {
-            height: 350px; background: radial-gradient(circle at center, #071326 0%, #010408 100%);
+            height: 340px; background: radial-gradient(circle at center, #051224 0%, #010307 100%);
             border: 1px solid rgba(0, 243, 255, 0.4); border-radius: 8px; position: relative;
             overflow: hidden; display: flex; justify-content: center; align-items: center;
         }
 
+        .tokamak-ring {
+            width: 210px; height: 210px; border-radius: 50%;
+            border: 6px solid rgba(0, 243, 255, 0.15);
+            position: absolute;
+            box-shadow: inset 0 0 15px rgba(0,243,255,0.2);
+        }
+
         .plasma-ring-effect {
-            width: 180px; height: 180px; border-radius: 50%;
-            background: conic-gradient(from 0deg, var(--plasma-blue), var(--plasma-purple), var(--warn-amber), var(--plasma-blue));
-            box-shadow: 0 0 50px var(--plasma-blue), inset 0 0 40px #fff;
-            filter: blur(15px);
-            opacity: 0; /* Mặc định tắt */
-            transform: scale(0.5);
-            transition: all 0.5s ease;
+            width: 170px; height: 170px; border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--plasma-blue), var(--plasma-purple), var(--warn-amber), var(--danger-red), var(--plasma-blue));
+            box-shadow: 0 0 40px var(--plasma-blue), inset 0 0 30px #fff;
+            filter: blur(12px);
+            opacity: 0;
+            transform: scale(0.4);
+            transition: all 0.6s ease;
         }
         .plasma-ring-effect.active {
-            opacity: 1;
-            animation: rotate-plasma 4s linear infinite, pulse-plasma 2s ease-in-out infinite alternate;
+            opacity: 0.95;
+            animation: rotate-plasma 3s linear infinite, pulse-plasma 1.5s ease-in-out infinite alternate;
+        }
+        .plasma-ring-effect.unstable {
+            background: conic-gradient(from 0deg, var(--danger-red), var(--warn-amber), #fff, var(--danger-red));
+            box-shadow: 0 0 70px var(--danger-red), inset 0 0 40px #fff;
+            animation: rotate-plasma 0.8s linear infinite, shake-plasma 0.2s ease-in-out infinite alternate;
         }
 
         @keyframes rotate-plasma { 100% { transform: rotate(360deg); } }
         @keyframes pulse-plasma {
-            0% { transform: scale(0.9); opacity: 0.8; }
-            100% { transform: scale(1.1); opacity: 1; }
+            0% { transform: scale(0.92); opacity: 0.8; }
+            100% { transform: scale(1.08); opacity: 1; }
+        }
+        @keyframes shake-plasma {
+            0% { transform: translate(-2px, 2px) scale(1.05); }
+            100% { transform: translate(2px, -2px) scale(1.12); }
         }
 
-        .core-hud { position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
-        .hud-top, .hud-bottom { font-size: 9px; letter-spacing: 2px; color: var(--plasma-blue); background: rgba(2, 8, 18, 0.8); padding: 3px 10px; border-radius: 3px; border: 1px solid rgba(0, 243, 255, 0.2); }
+        .core-hud { position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+        .hud-top, .hud-bottom { font-size: 8px; letter-spacing: 2px; color: var(--plasma-blue); background: rgba(2, 8, 18, 0.85); padding: 3px 8px; border-radius: 3px; border: 1px solid rgba(0, 243, 255, 0.2); }
         .hud-center-data { display: flex; flex-direction: column; align-items: center; }
-        .energy-output { font-size: 42px; font-weight: 800; font-family: var(--font-mono); color: #fff; text-shadow: 0 0 15px var(--plasma-blue); line-height: 1; }
-        .energy-unit { font-size: 11px; color: var(--warn-amber); letter-spacing: 3px; }
+        .energy-output { font-size: 38px; font-weight: 800; font-family: var(--font-mono); color: #fff; text-shadow: 0 0 15px var(--plasma-blue); line-height: 1; }
+        .energy-unit { font-size: 10px; color: var(--warn-amber); letter-spacing: 2px; }
 
-        .action-console { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        /* ACTION CONSOLE */
+        .action-console { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .sci-btn {
             background: linear-gradient(135deg, #0a254a 0%, #031124 100%);
             border: 1px solid var(--plasma-blue); color: var(--plasma-blue);
-            padding: 12px; font-family: var(--font-sci); font-size: 10px; font-weight: bold;
-            border-radius: 4px; cursor: pointer; transition: all 0.2s;
+            padding: 10px 6px; font-family: var(--font-sci); font-size: 9px; font-weight: bold;
+            border-radius: 4px; cursor: pointer; transition: all 0.2s; text-align: center;
         }
-        .sci-btn:hover { background: var(--plasma-blue); color: #000; box-shadow: 0 0 20px var(--plasma-blue); }
+        .sci-btn:hover { background: var(--plasma-blue); color: #000; box-shadow: 0 0 15px var(--plasma-blue); }
         .sci-btn.warning-btn { border-color: var(--warn-amber); color: var(--warn-amber); }
-        .sci-btn.warning-btn:hover { background: var(--warn-amber); color: #000; box-shadow: 0 0 20px var(--warn-amber); }
+        .sci-btn.warning-btn:hover { background: var(--warn-amber); color: #000; box-shadow: 0 0 15px var(--warn-amber); }
         .sci-btn.danger-btn { border-color: var(--danger-red); color: var(--danger-red); }
-        .sci-btn.danger-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 20px var(--danger-red); }
+        .sci-btn.danger-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 15px var(--danger-red); }
 
-        .graph-box { height: 45px; display: flex; align-items: flex-end; gap: 6px; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,51,51,0.2); border-radius: 4px; }
-        .bar-line { flex: 1; background: linear-gradient(to top, var(--warn-amber), var(--danger-red)); border-radius: 2px 2px 0 0; }
+        /* CHARTS & TERMINAL */
+        .graph-box { height: 45px; display: flex; align-items: flex-end; gap: 4px; padding: 4px; background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px; }
+        .bar-line { flex: 1; background: linear-gradient(to top, var(--plasma-blue), var(--success-green)); border-radius: 2px 2px 0 0; transition: height 0.4s ease; }
+        .bar-line.alert { background: linear-gradient(to top, var(--warn-amber), var(--danger-red)); }
 
         .terminal-screen {
             background: #000; border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 4px;
-            padding: 8px; font-family: var(--font-mono); font-size: 9px; color: #00ff66;
-            height: 80px; overflow-y: auto; display: flex; flex-direction: column;
+            padding: 6px 8px; font-family: var(--font-mono); font-size: 8.5px; color: var(--success-green);
+            height: 95px; overflow-y: auto; display: flex; flex-direction: column;
         }
-        .terminal-screen p { margin-bottom: 2px; opacity: 0.8; }
+        .terminal-screen p { margin-bottom: 2px; opacity: 0.85; line-height: 1.2; }
+        .terminal-screen p.err { color: var(--danger-red); }
+        .terminal-screen p.wrn { color: var(--warn-amber); }
+
         @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.4); }
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.5); }
             70% { box-shadow: 0 0 0 8px rgba(0, 255, 102, 0); }
             100% { box-shadow: 0 0 0 0 rgba(0, 255, 102, 0); }
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 51, 51, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
         }
     </style>
 </head>
 <body>
 
     <div class="reactor-container">
+        <!-- HEADER -->
         <header class="console-header">
             <div class="system-status">
                 <span id="statusIndicator" class="status-indicator"></span>
-                <span class="system-title">TOKAMAK FUSION REACTOR MK-VII</span>
+                <span class="system-title">TOKAMAK FUSION REACTOR MK-VII [PRO]</span>
             </div>
             <div class="global-metrics">
                 <div class="metric-item">
@@ -187,110 +226,142 @@
                     <span id="coreTemp" class="m-val warning">0.00 K</span>
                 </div>
                 <div class="metric-item">
-                    <span class="m-label">MAGNETIC CONFINEMENT:</span>
+                    <span class="m-label">CONFINEMENT:</span>
                     <span id="magConf" class="m-val success">0.0%</span>
                 </div>
                 <div class="metric-item">
-                    <span class="m-label">PLASMA DENSITY:</span>
-                    <span class="m-val">4.5e20 m⁻³</span>
+                    <span class="m-label">WALL FLUX:</span>
+                    <span id="wallFlux" class="m-val">0.0 MW/m²</span>
                 </div>
             </div>
             <div class="system-time">
-                <i class="fa-solid fa-clock"></i> T-MINUS: <span id="timer">00:45:12</span>
+                <i class="fa-solid fa-clock"></i> <span id="sysClock">00:00:00</span>
             </div>
         </header>
 
         <div class="dashboard-body">
-            <div class="panel-section left-panel">
-                <div class="section-title"><i class="fa-solid fa-magnet"></i> COIL & FIELD CONTROLS</div>
+            <!-- LEFT PANEL: COILS & FUEL -->
+            <div class="panel-section">
+                <div class="section-title">
+                    <span><i class="fa-solid fa-magnet"></i> MAGNETIC SYSTEM</span>
+                    <span id="magStatusText" class="badge warning">OFFLINE</span>
+                </div>
                 
                 <div class="control-card">
                     <div class="card-head">
-                        <span>Toroidal Field Coils</span>
-                        <span class="badge" id="badgeToroidal">STANDBY</span>
+                        <span>Toroidal Field Coils (TF)</span>
+                        <span class="badge" id="badgeToroidal">0 kA</span>
                     </div>
                     <div class="slider-group">
-                        <label>Current Load (kA) <span id="valToroidal">0</span></label>
-                        <input type="range" id="sliderToroidal" min="0" max="100" value="0" class="sci-slider">
+                        <label>Coil Current <span id="valToroidal">0 kA</span></label>
+                        <input type="range" id="sliderToroidal" min="0" max="120" value="0" class="sci-slider">
                     </div>
                 </div>
 
                 <div class="control-card">
                     <div class="card-head">
-                        <span>Poloidal Divertor</span>
-                        <span class="badge" id="badgePoloidal">STANDBY</span>
+                        <span>Poloidal Divertor Fields</span>
+                        <span class="badge" id="badgePoloidal">0 T</span>
                     </div>
                     <div class="slider-group">
-                        <label>Flux Compression <span id="valPoloidal">0 T</span></label>
+                        <label>Flux Compression <span id="valPoloidal">0.0 T</span></label>
                         <input type="range" id="sliderPoloidal" min="0" max="100" value="0" class="sci-slider">
                     </div>
                 </div>
 
+                <div class="section-title"><span><i class="fa-solid fa-atom"></i> FUEL & CRYOGENICS</span></div>
+
                 <div class="control-card">
                     <div class="card-head">
-                        <span>Cryogenic Helium Loop</span>
-                        <span class="badge warning">4.2 K</span>
+                        <span>Tritium-Deuterium Gas Injector</span>
+                        <span class="badge" id="badgeFuel">CLOSED</span>
+                    </div>
+                    <div class="slider-group">
+                        <label>Injection Rate <span id="valFuel">0 mg/s</span></label>
+                        <input type="range" id="sliderFuel" min="0" max="50" value="0" class="sci-slider">
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <div class="card-head">
+                        <span>Helium Super-Cooling Loop</span>
+                        <span class="badge active">4.2 K NOMINAL</span>
                     </div>
                     <div class="status-grid">
-                        <div class="s-box"><span>Flow Rate</span><b>1,250 L/s</b></div>
-                        <div class="s-box"><span>Pressure</span><b>3.1 MPa</b></div>
+                        <div class="s-box"><span>Coolant Flow</span><b id="coolantFlow">0 L/s</b></div>
+                        <div class="s-box"><span>Supercon State</span><b id="superconState">STANDBY</b></div>
                     </div>
                 </div>
             </div>
 
+            <!-- CENTER PANEL: VIEWPORT & CONTROLS -->
             <div class="panel-section center-panel">
                 <div class="plasma-viewport">
+                    <div class="tokamak-ring"></div>
                     <div id="plasmaEffect" class="plasma-ring-effect"></div>
                     <div class="core-hud">
-                        <div class="hud-top" id="hudStatus">REACTOR CORE: STANDBY</div>
+                        <div class="hud-top" id="hudStatus">REACTOR CORE: STANDBY / COLD</div>
                         <div class="hud-center-data">
                             <span id="energyOutput" class="energy-output">0.00</span>
-                            <span class="energy-unit">GW NET</span>
+                            <span class="energy-unit">GW NET POWER</span>
                         </div>
-                        <div class="hud-bottom">TRITIUM-DEUTERIUM INJECTION: IDLE</div>
+                        <div class="hud-bottom" id="hudSubStatus">MAGNETIC CAGE: UNPRESSURIZED</div>
                     </div>
                 </div>
 
                 <div class="action-console">
-                    <button id="btnInject" class="sci-btn"><i class="fa-solid fa-bolt"></i> INJECT FUEL</button>
-                    <button id="btnPulse" class="sci-btn warning-btn"><i class="fa-solid fa-radiation"></i> PULSE LASER</button>
-                    <button id="btnScram" class="sci-btn danger-btn"><i class="fa-solid fa-triangle-exclamation"></i> EMERGENCY SCRAM</button>
+                    <button id="btnIgnite" class="sci-btn"><i class="fa-solid fa-fire"></i> IGNITE</button>
+                    <button id="btnNBI" class="sci-btn warning-btn"><i class="fa-solid fa-bolt"></i> NBI HEAT</button>
+                    <button id="btnPurge" class="sci-btn warning-btn"><i class="fa-solid fa-wind"></i> GAS PURGE</button>
+                    <button id="btnScram" class="sci-btn danger-btn"><i class="fa-solid fa-triangle-exclamation"></i> SCRAM</button>
+                </div>
+
+                <div class="control-card" style="padding: 8px;">
+                    <div class="card-head" style="margin-bottom: 4px;">
+                        <span>Automated Interlock Safety System</span>
+                        <span class="badge active" id="interlockBadge">ARMED & ACTIVE</span>
+                    </div>
+                    <div style="font-size: 8.5px; color: #78909c; font-family: var(--font-mono);">
+                        * Tự động ngắt điện từ trường và phun boron dập plasma nếu nhiệt độ vượt ngưỡng giới hạn vật liệu ($1.8 \times 10^8$ K).
+                    </div>
                 </div>
             </div>
 
-            <div class="panel-section right-panel">
-                <div class="section-title"><i class="fa-solid fa-chart-line"></i> DIAGNOSTICS & SHIELDING</div>
+            <!-- RIGHT PANEL: DIAGNOSTICS & LOGS -->
+            <div class="panel-section">
+                <div class="section-title"><span><i class="fa-solid fa-chart-line"></i> DIAGNOSTIC TELEMETRY</span></div>
                 
                 <div class="control-card">
                     <div class="card-head">
-                        <span>Neutron Flux Monitor</span>
-                        <span class="badge" id="badgeNeutron">LOW</span>
+                        <span>Neutron Flux Emission (D-T)</span>
+                        <span class="badge" id="badgeNeutron">0 n/s</span>
                     </div>
-                    <div class="graph-box">
+                    <div class="graph-box" id="neutronGraph">
+                        <div class="bar-line" style="height: 5%;"></div>
+                        <div class="bar-line" style="height: 8%;"></div>
+                        <div class="bar-line" style="height: 4%;"></div>
                         <div class="bar-line" style="height: 10%;"></div>
-                        <div class="bar-line" style="height: 15%;"></div>
-                        <div class="bar-line" style="height: 10%;"></div>
-                        <div class="bar-line" style="height: 20%;"></div>
-                        <div class="bar-line" style="height: 15%;"></div>
+                        <div class="bar-line" style="height: 6%;"></div>
+                        <div class="bar-line" style="height: 5%;"></div>
                     </div>
                 </div>
 
                 <div class="control-card">
                     <div class="card-head">
-                        <span>Radiation Shielding</span>
-                        <span class="badge active">INTEGRITY 100%</span>
+                        <span>First Wall Armor Integrity</span>
+                        <span class="badge active" id="badgeWall">100%</span>
                     </div>
                     <div class="status-grid">
-                        <div class="s-box"><span>Inner Wall</span><b>Tungsten</b></div>
-                        <div class="s-box"><span>Li Blanket</span><b>Active</b></div>
+                        <div class="s-box"><span>Armor Material</span><b>Tungsten-C</b></div>
+                        <div class="s-box"><span>Surface Erosion</span><b id="erosionVal">0.00 µm/h</b></div>
                     </div>
                 </div>
 
-                <div class="control-card command-terminal">
-                    <div class="card-head"><span>Terminal Log</span></div>
+                <div class="control-card command-terminal" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-head"><span>Live Telemetry & Event Log</span></div>
                     <div id="terminalScreen" class="terminal-screen">
-                        <p>> [SYS] System initialized in standby mode.</p>
-                        <p>> [READY] Awaiting operator command...</p>
+                        <p>> [SYS] Tokamak MK-VII operational environment loaded.</p>
+                        <p>> [INFO] Cryomagnetics ready. Awaiting operator activation.</p>
                     </div>
                 </div>
             </div>
@@ -298,114 +369,235 @@
     </div>
 
     <script>
-        const btnInject = document.getElementById('btnInject');
-        const btnPulse = document.getElementById('btnPulse');
-        const btnScram = document.getElementById('btnScram');
-        const plasmaEffect = document.getElementById('plasmaEffect');
+        // DOM Elements
         const statusIndicator = document.getElementById('statusIndicator');
-        const coreTemp = document.getElementById('coreTemp');
-        const magConf = document.getElementById('magConf');
-        const energyOutput = document.getElementById('energyOutput');
-        const hudStatus = document.getElementById('hudStatus');
-        const terminalScreen = document.getElementById('terminalScreen');
+        const coreTempEl = document.getElementById('coreTemp');
+        const magConfEl = document.getElementById('magConf');
+        const wallFluxEl = document.getElementById('wallFlux');
+        const sysClock = document.getElementById('sysClock');
         
         const sliderToroidal = document.getElementById('sliderToroidal');
         const valToroidal = document.getElementById('valToroidal');
         const badgeToroidal = document.getElementById('badgeToroidal');
+        const magStatusText = document.getElementById('magStatusText');
 
         const sliderPoloidal = document.getElementById('sliderPoloidal');
         const valPoloidal = document.getElementById('valPoloidal');
         const badgePoloidal = document.getElementById('badgePoloidal');
 
-        let isRunning = false;
+        const sliderFuel = document.getElementById('sliderFuel');
+        const valFuel = document.getElementById('valFuel');
+        const badgeFuel = document.getElementById('badgeFuel');
 
-        function logMessage(msg) {
+        const coolantFlow = document.getElementById('coolantFlow');
+        const superconState = document.getElementById('superconState');
+
+        const plasmaEffect = document.getElementById('plasmaEffect');
+        const hudStatus = document.getElementById('hudStatus');
+        const energyOutput = document.getElementById('energyOutput');
+        const hudSubStatus = document.getElementById('hudSubStatus');
+
+        const btnIgnite = document.getElementById('btnIgnite');
+        const btnNBI = document.getElementById('btnNBI');
+        const btnPurge = document.getElementById('btnPurge');
+        const btnScram = document.getElementById('btnScram');
+
+        const badgeNeutron = document.getElementById('badgeNeutron');
+        const neutronGraph = document.getElementById('neutronGraph');
+        const badgeWall = document.getElementById('badgeWall');
+        const erosionVal = document.getElementById('erosionVal');
+        const terminalScreen = document.getElementById('terminalScreen');
+
+        // Simulation State Variables
+        let state = {
+            tfCurrent: 0,       // kA
+            poloidalFlux: 0,    // T
+            fuelRate: 0,        // mg/s
+            nbiActive: false,
+            plasmaActive: false,
+            temperature: 300,   // K
+            confinement: 0,     // %
+            energyGW: 0,        // GW
+            wallFluxVal: 0,     // MW/m2
+            wallIntegrity: 100, // %
+            unstable: false
+        };
+
+        // Realtime Clock
+        setInterval(() => {
+            const now = new Date();
+            sysClock.textContent = now.toTimeString().split(' ')[0];
+        }, 1000);
+
+        function logMessage(msg, type = 'info') {
             const p = document.createElement('p');
-            p.textContent = `> ${msg}`;
+            if(type === 'err') p.className = 'err';
+            if(type === 'wrn') p.className = 'wrn';
+            p.textContent = `> [${new Date().toTimeString().split(' ')[0}}] ${msg}`;
             terminalScreen.appendChild(p);
             terminalScreen.scrollTop = terminalScreen.scrollHeight;
         }
 
+        // Slider Listeners
         sliderToroidal.addEventListener('input', (e) => {
-            valToroidal.textContent = e.target.value;
-            if(e.target.value > 50) {
-                badgeToroidal.className = 'badge active';
-                badgeToroidal.textContent = 'STABLE';
+            state.tfCurrent = parseInt(e.target.value);
+            valToroidal.textContent = state.tfCurrent + " kA";
+            if(state.tfCurrent > 70) {
+                badgeToroidal.className = 'badge active'; badgeToroidal.textContent = 'SUPERCONDUCTING';
+                magStatusText.className = 'badge active'; magStatusText.textContent = 'ACTIVE';
+            } else if(state.tfCurrent > 0) {
+                badgeToroidal.className = 'badge warning'; badgeToroidal.textContent = 'CHARGING';
+                magStatusText.className = 'badge warning'; magStatusText.textContent = 'RAMPING';
             } else {
-                badgeToroidal.className = 'badge warning';
-                badgeToroidal.textContent = 'LOW';
+                badgeToroidal.className = 'badge'; badgeToroidal.textContent = '0 kA';
+                magStatusText.className = 'badge warning'; magStatusText.textContent = 'OFFLINE';
             }
         });
 
         sliderPoloidal.addEventListener('input', (e) => {
-            valPoloidal.textContent = (e.target.value * 0.2).toFixed(1) + ' T';
-            if(e.target.value > 50) {
-                badgePoloidal.className = 'badge active';
-                badgePoloidal.textContent = 'OPTIMAL';
-            } else {
-                badgePoloidal.className = 'badge warning';
-                badgePoloidal.textContent = 'WEAK';
-            }
+            state.poloidalFlux = (parseFloat(e.target.value) * 0.15).toFixed(1);
+            valPoloidal.textContent = state.poloidalFlux + " T";
+            badgePoloidal.textContent = state.poloidalFlux + " T";
+            badgePoloidal.className = state.poloidalFlux > 5 ? 'badge active' : 'badge warning';
         });
 
-        btnInject.addEventListener('click', () => {
-            isRunning = true;
-            statusIndicator.classList.add('active');
-            plasmaEffect.classList.add('active');
-            coreTemp.textContent = "1.42 × 10⁸ K";
-            magConf.textContent = "99.8%";
-            energyOutput.textContent = "1.21";
-            hudStatus.textContent = "REACTOR CORE: CONFINED";
-            
-            sliderToroidal.value = 85;
-            valToroidal.textContent = "85";
-            badgeToroidal.className = 'badge active';
-            badgeToroidal.textContent = 'STABLE';
-
-            sliderPoloidal.value = 65;
-            valPoloidal.textContent = "13.0 T";
-            badgePoloidal.className = 'badge active';
-            badgePoloidal.textContent = 'OPTIMAL';
-
-            logMessage("[SUCCESS] Tritium-Deuterium fuel injected.");
-            logMessage("[SYS] Magnetic confinement engaged at 99.8%.");
+        sliderFuel.addEventListener('input', (e) => {
+            state.fuelRate = parseInt(e.target.value);
+            valFuel.textContent = state.fuelRate + " mg/s";
+            badgeFuel.textContent = state.fuelRate > 0 ? 'INJECTING' : 'CLOSED';
+            badgeFuel.className = state.fuelRate > 0 ? 'badge active' : 'badge';
         });
 
-        btnPulse.addEventListener('click', () => {
-            if(!isRunning) {
-                logMessage("[WARN] Cannot pulse laser. Reactor not running!");
+        // Action Buttons
+        btnIgnite.addEventListener('click', () => {
+            if(state.tfCurrent < 70) {
+                logMessage("Không thể khởi động mồi lửa! Từ trường Toroidal quá yếu (< 70 kA).", 'err');
                 return;
             }
-            energyOutput.textContent = "1.85";
-            coreTemp.textContent = "1.95 × 10⁸ K";
-            logMessage("[INFO] Laser heating pulse applied. Power surged.");
-            setTimeout(() => {
-                energyOutput.textContent = "1.21";
-                coreTemp.textContent = "1.42 × 10⁸ K";
-            }, 3000);
-        });
-
-        btnScram.addEventListener('click', () => {
-            isRunning = false;
-            statusIndicator.classList.remove('active');
-            plasmaEffect.classList.remove('active');
-            coreTemp.textContent = "0.00 K";
-            magConf.textContent = "0.0%";
-            energyOutput.textContent = "0.00";
-            hudStatus.textContent = "REACTOR CORE: SHUTDOWN";
+            if(state.fuelRate === <span class="math-inline">0\) \{
+logMessage\("Chưa cấp nhiên liệu D-T\! Vui lòng tăng lưu lượng bơm khí nhiên liệu\.", 'wrn'\);
+return;
+            \}
+            state.plasmaActive \= true;
+            state.temperature \= 1.25e8; // 125 triệu độ K
+            state.confinement \= 98.5;
+            plasmaEffect.classList.add\('active'\);
+            statusIndicator.classList.add\('active'\);
+            hudStatus.textContent \= "REACTOR CORE: PLASMA CONFINED";
+            logMessage\("Mồi lửa thành công! Phản ứng tổng hợp hạt nhân D-T đã bắt đầu\."\);
+        \});
+        btnNBI.addEventListener\('click', \(\) \=\> \{
+            if\(\!state\.plasmaActive\) \{
+                logMessage\("Không thể kích hoạt NBI Heating khi lò đang tắt\!", 'err'\);
+                return;
+            \}
+            state.nbiActive \= true;
+            state.temperature \+= 4.0e7;
+            logMessage\("Đã kích hoạt Neutral Beam Injection (NBI). Nhiệt độ tăng vọt\!"\);
+            setTimeout\(\(\) \=\> \{
+                state.nbiActive \= false;
+            \}, 4000\);
+        \});
+        btnPurge.addEventListener\('click', \(\) \=\> \{
+            sliderFuel.value \= 0;
+            state.fuelRate \= 0;
+            valFuel.textContent \= "0 mg/s";
+            badgeFuel.textContent \= "PURGED";
+            badgeFuel.className \= 'badge warning';
+            logMessage\("Đã xả khí khoang buồng phản ứng (Gas Purging active)\."\);
+        \});
+        btnScram.addEventListener\('click', \(\) \=\> \{
+            triggerScram\("Người vận hành kích hoạt nút khẩn cấp SCRAM thủ công\."\);
+        \});
+        function triggerScram\(reason\) \{
+            state.plasmaActive \= false;
+            state.nbiActive \= false;
+            state.temperature \= 300;
+            state.confinement \= 0;
+            state.energyGW \= 0;
+            state.unstable \= false;
             
-            sliderToroidal.value = 0;
-            valToroidal.textContent = "0";
-            badgeToroidal.className = 'badge warning';
-            badgeToroidal.textContent = 'OFF';
-
-            sliderPoloidal.value = 0;
-            valPoloidal.textContent = "0 T";
-            badgePoloidal.className = 'badge warning';
-            badgePoloidal.textContent = 'OFF';
-
-            logMessage("[ALERT] EMERGENCY SCRAM ACTIVATED! Reactor halted.");
-        });
+            sliderToroidal.value \= 0; valToroidal.textContent \= "0 kA"; badgeToroidal.textContent \= "0 kA"; badgeToroidal.className \= 'badge';
+            sliderPoloidal.value \= 0; valPoloidal.textContent \= "0.0 T"; badgePoloidal.textContent \= "0.0 T";
+            sliderFuel.value \= 0; valFuel.textContent \= "0 mg/s"; badgeFuel.textContent \= "CLOSED"; badgeFuel.className \= 'badge';
+            
+            plasmaEffect.classList.remove\('active', 'unstable'\);
+            statusIndicator.classList.remove\('active', 'danger'\);
+            magStatusText.className \= 'badge warning'; magStatusText.textContent \= 'OFFLINE';
+            hudStatus.textContent \= "REACTOR CORE: SHUTDOWN / COLD";
+            
+            logMessage\("🚨 SCRAM KHẨN CẤP: " \+ reason, 'err'\);
+        \}
+        // Main Simulation Loop (100ms ticks)
+        setInterval\(\(\) \=\> \{
+            if \(state\.plasmaActive\) \{
+                // Biến động nhiệt độ dựa trên nhiên liệu và NBI
+                let targetTemp \= 1.0e8 \+ \(state\.fuelRate \* 8.0e5\) \+ \(state\.nbiActive ? 5.0e7 \: 0\);
+                state.temperature \+\= \(targetTemp \- state.temperature\) \* 0.1;
+                
+                // Kiểm soát độ ổn định từ trường so với nhiệt độ
+                let magCapacity \= state.tfCurrent \* 1.4 \+ parseFloat\(state.poloidalFlux\) \* 8;
+                if \(state.temperature \> magCapacity \* 1.2e6\) \{
+                    state.confinement \-= 0.8;
+                    if\(\!state\.unstable\) \{
+                        state.unstable \= true;
+                        plasmaEffect.classList.add\('unstable'\);
+                        statusIndicator.classList.add\('danger'\);
+                        logMessage\("CẢNH BÁO: Từ trường không đủ giữ plasma\! Nguy cơ bùng nổ vách lò\!", 'wrn'\);
+                    \}
+                \} else \{
+                    if\(state.confinement < 98.0\) state.confinement \+\= 0.5;
+                    if\(state.unstable\) \{
+                        state.unstable \= false;
+                        plasmaEffect.classList.remove\('unstable'\);
+                        statusIndicator.classList.remove\('danger'\);
+                        logMessage\("Ổn định từ trường đã được thiết lập lại an toàn\."\);
+                    \}
+                \}
+                
+                // Tự động ngắt nếu quá nhiệt thảm khốc (> 1.8e8 K)
+                if \(state.temperature \> 1.8e8\) \{
+                    triggerScram\("Nhiệt độ lõi vượt ngưỡng giới hạn vật liệu chịu nhiệt Tungsten ($1.8 \times 10^8$ K)\."\);
+                    return;
+                \}
+                
+                // Tính toán công suất năng lượng tạo ra (GW)
+                state.energyGW \= \(\(state.temperature / 1e8\) \* \(state.fuelRate / 10\) \* 1.2\)\.toFixed\(2\);
+                state.wallFluxVal \= \(\(state.energyGW \* 1.5\) \+ Math\.random\(\)*0.4\)\.toFixed\(1\);
+                state.wallIntegrity \= Math\.max\(0, \(100 \- \(state.energyGW * 0.05\)\)\)\.toFixed\(1\);
+                
+                // Cập nhật giao diện
+                coreTempEl.textContent \= \(state.temperature / 1e8\)\.toFixed\(2\) \+ " × 10⁸ K";
+                magConfEl.textContent \= state.confinement\.toFixed\(1\) \+ "%";
+                energyOutput.textContent \= state.energyGW;
+                wallFluxEl.textContent \= state.wallFluxVal \+ " MW/m²";
+                badgeWall.textContent \= state.wallIntegrity \+ "%";
+                
+                coolantFlow.textContent \= Math\.floor\(1200 \+ state.energyGW * 200\) \+ " L/s";
+                superconState.textContent \= state.temperature \> 1.5e8 ? "CRITICAL COOLING" : "STABLE";
+                
+                badgeNeutron.textContent \= Math\.floor\(state.energyGW \* 4.2e18\) \+ " n/s";
+                
+                // Cập nhật biểu đồ neutron động
+                const bars \= neutronGraph.querySelectorAll\('.bar-line'\);
+                bars\.forEach\(bar \=\> \{
+                    let h \= Math\.floor\(Math\.random\(\) \* 60 \+ state.energyGW \* 15\);
+                    bar.style.height \= Math\.min\(100, h\) \+ "%\";
+                    if\(state.unstable\) bar.classList.add\('alert'\);
+                    else bar.classList.remove\('alert'\);
+                \});
+                
+                hudSubStatus.textContent \= state.unstable ? "⚠️ PLASMA DISRUPTION WARNING" : \`CONFINEMENT FIELD: STABLE (\${state.tfCurrent} kA)\`;
+            \} else \{
+                coreTempEl.textContent \= "300.00 K";
+                magConfEl.textContent \= "0.0%";
+                energyOutput.textContent \= "0.00";
+                wallFluxEl.textContent \= "0.0 MW/m²";
+                coolantFlow.textContent \= "0 L/s";
+                superconState.textContent \= "STANDBY";
+                badgeNeutron.textContent \= "0 n/s";
+            \}
+        \}, 300);
     </script>
 </body>
 </html>
