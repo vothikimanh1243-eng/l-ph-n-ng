@@ -1,364 +1,504 @@
 <!DOCTYPE html>
 <html lang="vi">
-    <style>
-        * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: #121212;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.oven-container {
-    width: 650px;
-    background: #1a1a1a;
-    border-radius: 8px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-    overflow: hidden;
-    border: 2px solid #333;
-}
-
-/* Bảng điều khiển */
-.control-panel {
-    background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 4px solid #0f0f0f;
-}
-
-.control-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Thiết kế Nút vặn (Knob) */
-.knob-container {
-    position: relative;
-    width: 65px;
-    height: 65px;
-    background: radial-gradient(circle, #444 0%, #222 70%, #111 100%);
-    border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-.knob {
-    width: 50px;
-    height: 50px;
-    background: #1c1c1c;
-    border-radius: 50%;
-    position: relative;
-    box-shadow: inset 0 3px 5px rgba(0,0,0,0.8);
-}
-
-.knob-indicator {
-    width: 4px;
-    height: 12px;
-    background: #00e5ff;
-    position: absolute;
-    top: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 2px;
-    box-shadow: 0 0 6px #00e5ff;
-}
-
-/* Các icon quanh nút vặn trái */
-.icons-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
-    font-size: 11px;
-    color: #777;
-}
-
-.icons-grid i.active {
-    color: #00e5ff;
-    text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
-}
-
-/* Thang nhiệt độ quanh nút vặn phải */
-.temp-labels {
-    display: flex;
-    flex-direction: column;
-    font-size: 9px;
-    color: #888;
-    align-items: center;
-    gap: 2px;
-}
-
-.highlight-temp {
-    color: #ff9900;
-    font-weight: bold;
-    text-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
-}
-
-/* Màn hình OLED Trung tâm */
-.oled-screen {
-    width: 250px;
-    height: 90px;
-    background: #05080a;
-    border: 2px solid #1f2937;
-    border-radius: 6px;
-    padding: 6px 10px;
-    color: #00e5ff;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: inset 0 0 10px rgba(0, 229, 255, 0.2);
-}
-
-.screen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 10px;
-    border-bottom: 1px solid #11323f;
-    padding-bottom: 2px;
-}
-
-.brand-mode {
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.wifi-icon {
-    color: #00e5ff;
-    font-size: 10px;
-}
-
-.screen-body {
-    font-size: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.status-row {
-    display: flex;
-    justify-content: space-between;
-}
-
-.label {
-    color: #8a99ad;
-}
-
-.value {
-    color: #fff;
-}
-
-.active-status {
-    color: #ffcc00;
-}
-
-.screen-footer-icons {
-    display: flex;
-    justify-content: space-around;
-    font-size: 11px;
-    color: #557788;
-    border-top: 1px solid #11323f;
-    padding-top: 2px;
-}
-
-.screen-footer-icons i:hover {
-    color: #00e5ff;
-    cursor: pointer;
-}
-
-/* Cửa kính lò nướng */
-.oven-door {
-    background: #0a0a0a;
-    position: relative;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.handle-bar {
-    width: 350px;
-    height: 12px;
-    background: linear-gradient(to bottom, #dcdcdc, #888, #333);
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.6);
-    margin-bottom: 15px;
-    cursor: pointer;
-}
-
-.window-glass {
-    width: 100%;
-    height: 280px;
-    background: radial-gradient(circle, #3a2211 0%, #1a0f05 70%, #000 100%);
-    border: 8px solid #1a1a1a;
-    border-radius: 4px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
-}
-
-/* Ánh sáng và thực phẩm bên trong lò */
-.interior-light {
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, rgba(255, 140, 0, 0.25) 0%, rgba(0,0,0,0.8) 80%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.roasted-chicken {
-    text-align: center;
-    color: #ffaa33;
-    animation: glowEffect 2s infinite alternate;
-}
-
-.roasted-chicken i {
-    font-size: 45px;
-    display: block;
-    margin-bottom: 8px;
-    filter: drop-shadow(0 0 10px #ff6600);
-}
-
-.roasted-chicken span {
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    background: rgba(0,0,0,0.6);
-    padding: 3px 8px;
-    border-radius: 4px;
-}
-
-/* Hiệu ứng sáng lò */
-@keyframes glowEffect {
-    0% { opacity: 0.8; }
-    100% { opacity: 1; text-shadow: 0 0 15px #ff9900; }
-}
-
-/* Logo thương hiệu dưới cửa lò */
-.oven-brand {
-    margin-top: 15px;
-    text-align: center;
-    color: #ccc;
-}
-
-.oven-brand span {
-    display: block;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 2px;
-}
-
-.sub-brand {
-    font-size: 10px !important;
-    color: #777;
-    letter-spacing: 1px !important;
-}
-    </style>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Oven Control Panel</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome để dùng các icon trực quan -->
+    <title>Nuclear Fusion Reactor Control System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* --- Sci-Fi Nuclear Reactor Theme (CSS Style) --- */
+        :root {
+            --bg-dark: #02060c;
+            --panel-bg: rgba(8, 15, 30, 0.85);
+            --border-glow: #00f3ff;
+            --plasma-blue: #00e1ff;
+            --plasma-purple: #9d00ff;
+            --warn-amber: #ffaa00;
+            --danger-red: #ff3333;
+            --text-main: #c0d8f0;
+            --font-sci: 'Orbitron', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 50%, #051937 0%, #02060c 80%),
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            font-family: var(--font-sci);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .reactor-container {
+            width: 1200px;
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .console-header {
+            background: linear-gradient(90deg, #051428 0%, #0a254a 50%, #051428 100%);
+            border-bottom: 2px solid var(--border-glow);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background: #00ff66;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff66;
+            animation: pulse-green 2s infinite;
+        }
+
+        .system-title {
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .global-metrics {
+            display: flex;
+            gap: 25px;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .m-label {
+            font-size: 9px;
+            color: #6a8caf;
+        }
+
+        .m-val {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .m-val.warning { color: var(--warn-amber); text-shadow: 0 0 8px rgba(255, 170, 0, 0.4); }
+        .m-val.success { color: #00ff66; }
+
+        .system-time {
+            font-family: var(--font-mono);
+            color: var(--plasma-blue);
+            font-size: 14px;
+        }
+
+        .dashboard-body {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--plasma-blue);
+            border-left: 3px solid var(--plasma-blue);
+            padding-left: 8px;
+            margin-bottom: 5px;
+        }
+
+        .control-card {
+            background: rgba(2, 8, 18, 0.7);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 6px;
+            padding: 12px;
+            position: relative;
+        }
+
+        .control-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 6px; height: 6px;
+            border-top: 2px solid var(--border-glow);
+            border-left: 2px solid var(--border-glow);
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: var(--font-mono);
+        }
+
+        .badge.active { background: rgba(0, 255, 102, 0.15); color: #00ff66; border: 1px solid rgba(0,255,102,0.3); }
+        .badge.warning { background: rgba(255, 170, 0, 0.15); color: var(--warn-amber); border: 1px solid rgba(255,170,0,0.3); }
+        .badge.danger { background: rgba(255, 51, 51, 0.15); color: var(--danger-red); border: 1px solid rgba(255,51,51,0.3); }
+
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #8ab4f8;
+            margin-bottom: 5px;
+            font-family: var(--font-mono);
+        }
+
+        .sci-slider {
+            width: 100%;
+            accent-color: var(--plasma-blue);
+            cursor: pointer;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .s-box {
+            background: rgba(0, 243, 255, 0.03);
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            padding: 6px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .s-box span { font-size: 8px; color: #78909c; }
+        .s-box b { font-size: 11px; font-family: var(--font-mono); color: #fff; }
+
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .plasma-viewport {
+            height: 350px;
+            background: radial-gradient(circle at center, #071326 0%, #010408 100%);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 50px rgba(0, 243, 255, 0.1);
+        }
+
+        .plasma-ring-effect {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--plasma-blue), var(--plasma-purple), var(--warn-amber), var(--plasma-blue));
+            box-shadow: 0 0 50px var(--plasma-blue), inset 0 0 40px #fff;
+            filter: blur(15px);
+            animation: rotate-plasma 4s linear infinite, pulse-plasma 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes rotate-plasma {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-plasma {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .core-hud {
+            position: absolute;
+            top: 15px; left: 15px; right: 15px; bottom: 15px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hud-top, .hud-bottom {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--plasma-blue);
+            background: rgba(2, 8, 18, 0.8);
+            padding: 3px 10px;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .hud-center-data {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .energy-output {
+            font-size: 42px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: #fff;
+            text-shadow: 0 0 15px var(--plasma-blue);
+            line-height: 1;
+        }
+
+        .energy-unit {
+            font-size: 11px;
+            color: var(--warn-amber);
+            letter-spacing: 3px;
+        }
+
+        .action-console {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .sci-btn {
+            background: linear-gradient(135deg, #0a254a 0%, #031124 100%);
+            border: 1px solid var(--plasma-blue);
+            color: var(--plasma-blue);
+            padding: 12px;
+            font-family: var(--font-sci);
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+        }
+
+        .sci-btn:hover {
+            background: var(--plasma-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--plasma-blue);
+        }
+
+        .sci-btn.warning-btn {
+            border-color: var(--warn-amber);
+            color: var(--warn-amber);
+        }
+        .sci-btn.warning-btn:hover {
+            background: var(--warn-amber);
+            color: #000;
+            box-shadow: 0 0 20px var(--warn-amber);
+        }
+
+        .sci-btn.danger-btn {
+            border-color: var(--danger-red);
+            color: var(--danger-red);
+        }
+        .sci-btn.danger-btn:hover {
+            background: var(--danger-red);
+            color: #fff;
+            box-shadow: 0 0 20px var(--danger-red);
+        }
+
+        .graph-box {
+            height: 45px;
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            padding: 5px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,51,51,0.2);
+            border-radius: 4px;
+        }
+
+        .bar-line {
+            flex: 1;
+            background: linear-gradient(to top, var(--warn-amber), var(--danger-red));
+            border-radius: 2px 2px 0 0;
+        }
+
+        .terminal-screen {
+            background: #000;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 4px;
+            padding: 8px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: #00ff66;
+            height: 80px;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .terminal-screen p {
+            margin-bottom: 2px;
+            opacity: 0.8;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 102, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(0, 255, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 102, 0); }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="oven-container">
-        <!-- Bảng điều khiển phía trên -->
-        <div class="control-panel">
-            
-            <!-- Nút vặn bên trái: Chọn chức năng -->
-            <div class="control-group">
-                <div class="knob-container">
-                    <div class="knob">
-                        <div class="knob-indicator"></div>
+    <div class="reactor-container">
+        <header class="console-header">
+            <div class="system-status">
+                <span class="status-indicator active"></span>
+                <span class="system-title">TOKAMAK FUSION REACTOR MK-VII</span>
+            </div>
+            <div class="global-metrics">
+                <div class="metric-item">
+                    <span class="m-label">CORE TEMP:</span>
+                    <span class="m-val warning">1.42 × 10⁸ K</span>
+                </div>
+                <div class="metric-item">
+                    <span class="m-label">MAGNETIC CONFINEMENT:</span>
+                    <span class="m-val success">99.8%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="m-label">PLASMA DENSITY:</span>
+                    <span class="m-val">4.5e20 m⁻³</span>
+                </div>
+            </div>
+            <div class="system-time">
+                <i class="fa-solid fa-clock"></i> T-MINUS: <span id="timer">00:45:12</span>
+            </div>
+        </header>
+
+        <div class="dashboard-body">
+            <div class="panel-section left-panel">
+                <div class="section-title"><i class="fa-solid fa-magnet"></i> COIL & FIELD CONTROLS</div>
+                
+                <div class="control-card">
+                    <div class="card-head">
+                        <span>Toroidal Field Coils</span>
+                        <span class="badge active">STABLE</span>
+                    </div>
+                    <div class="slider-group">
+                        <label>Current Load (kA) <span class="val">84.5</span></label>
+                        <input type="range" min="0" max="100" value="84" class="sci-slider">
                     </div>
                 </div>
-                <div class="icons-grid">
-                    <i class="fa-solid fa-fire active" title="Nướng trên/dưới"></i>
-                    <i class="fa-solid fa-wind" title="Đối lưu (Convection)"></i>
-                    <i class="fa-solid fa-pizza-slice" title="Nướng Pizza"></i>
-                    <i class="fa-solid fa-bacon" title="Nướng thanh nhiệt"></i>
+
+                <div class="control-card">
+                    <div class="card-head">
+                        <span>Poloidal Divertor</span>
+                        <span class="badge active">OPTIMAL</span>
+                    </div>
+                    <div class="slider-group">
+                        <label>Flux Compression <span class="val">12.4 T</span></label>
+                        <input type="range" min="0" max="100" value="65" class="sci-slider">
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <div class="card-head">
+                        <span>Cryogenic Helium Loop</span>
+                        <span class="badge warning">4.2 K</span>
+                    </div>
+                    <div class="status-grid">
+                        <div class="s-box"><span>Flow Rate</span><b>1,250 L/s</b></div>
+                        <div class="s-box"><span>Pressure</span><b>3.1 MPa</b></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Màn hình OLED trung tâm -->
-            <div class="oled-screen">
-                <div class="screen-header">
-                    <span class="brand-mode">SMART OVEN PRO</span>
-                    <i class="fa-solid fa-wifi wifi-icon"></i>
-                </div>
-                <div class="screen-body">
-                    <div class="status-row">
-                        <span class="label">Chế độ:</span>
-                        <span class="value">Nướng gà đối lưu</span>
-                    </div>
-                    <div class="status-row">
-                        <span class="label">Thời gian:</span>
-                        <span class="value">01:45 / 02:00 (180°C)</span>
-                    </div>
-                    <div class="status-row">
-                        <span class="label">Trạng thái:</span>
-                        <span class="value active-status">Đang nướng...</span>
+            <div class="panel-section center-panel">
+                <div class="plasma-viewport">
+                    <div class="plasma-ring-effect"></div>
+                    <div class="core-hud">
+                        <div class="hud-top">REACTOR CORE: CONFINED</div>
+                        <div class="hud-center-data">
+                            <span class="energy-output">1.21</span>
+                            <span class="energy-unit">GW NET</span>
+                        </div>
+                        <div class="hud-bottom">TRITIUM-DEUTERIUM INJECTION: ACTIVE</div>
                     </div>
                 </div>
-                <!-- Thanh công cụ cảm ứng phụ dưới màn hình -->
-                <div class="screen-footer-icons">
-                    <i class="fa-solid fa-lightbulb" title="Đèn lò"></i>
-                    <i class="fa-solid fa-clock" title="Hẹn giờ"></i>
-                    <i class="fa-solid fa-temperature-high" title="Cảm biến nhiệt"></i>
-                    <i class="fa-solid fa-lock" title="Khóa trẻ em"></i>
+
+                <div class="action-console">
+                    <button class="sci-btn"><i class="fa-solid fa-bolt"></i> INJECT FUEL</button>
+                    <button class="sci-btn warning-btn"><i class="fa-solid fa-radiation"></i> PULSE LASER</button>
+                    <button class="sci-btn danger-btn"><i class="fa-solid fa-triangle-exclamation"></i> EMERGENCY SCRAM</button>
                 </div>
             </div>
 
-            <!-- Nút vặn bên phải: Chỉnh nhiệt độ -->
-            <div class="control-group">
-                <div class="knob-container">
-                    <div class="knob right-knob">
-                        <div class="knob-indicator"></div>
+            <div class="panel-section right-panel">
+                <div class="section-title"><i class="fa-solid fa-chart-line"></i> DIAGNOSTICS & SHIELDING</div>
+                
+                <div class="control-card">
+                    <div class="card-head">
+                        <span>Neutron Flux Monitor</span>
+                        <span class="badge danger">HIGH</span>
+                    </div>
+                    <div class="graph-box">
+                        <div class="bar-line" style="height: 70%;"></div>
+                        <div class="bar-line" style="height: 85%;"></div>
+                        <div class="bar-line" style="height: 60%;"></div>
+                        <div class="bar-line" style="height: 95%;"></div>
+                        <div class="bar-line" style="height: 80%;"></div>
                     </div>
                 </div>
-                <div class="temp-labels">
-                    <span>50°C</span>
-                    <span>100°C</span>
-                    <span class="highlight-temp">180°C</span>
-                    <span>230°C</span>
-                    <span>250°C</span>
-                </div>
-            </div>
 
-        </div>
-
-        <!-- Cửa kính lò nướng (Hiệu ứng khoang lò bên trong) -->
-        <div class="oven-door">
-            <div class="handle-bar"></div>
-            <div class="window-glass">
-                <div class="interior-light">
-                    <!-- Mô phỏng thực phẩm bên trong lò -->
-                    <div class="roasted-chicken">
-                        <i class="fa-solid fa-utensils"></i>
-                        <span>Đang nướng gà vàng giòn</span>
+                <div class="control-card">
+                    <div class="card-head">
+                        <span>Radiation Shielding</span>
+                        <span class="badge active">INTEGRITY 100%</span>
+                    </div>
+                    <div class="status-grid">
+                        <div class="s-box"><span>Inner Wall</span><b>Tungsten</b></div>
+                        <div class="s-box"><span>Li Blanket</span><b>Active</b></div>
                     </div>
                 </div>
-            </div>
-            <div class="oven-brand">
-                <span>Miele</span>
-                <span class="sub-brand">Generation 7000</span>
+
+                <div class="control-card command-terminal">
+                    <div class="card-head"><span>Terminal Log</span></div>
+                    <div class="terminal-screen">
+                        <p>> [SYS] Magnetic confinement stable.</p>
+                        <p>> [INFO] Tritium feed rate nominal.</p>
+                        <p>> [WARN] Heat flux near divertor plate rising.</p>
+                        <p>> [READY] Awaiting operator input...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
