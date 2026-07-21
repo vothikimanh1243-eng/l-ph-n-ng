@@ -223,7 +223,7 @@
             <div class="global-metrics">
                 <div class="metric-item">
                     <span class="m-label">CORE TEMP:</span>
-                    <span id="coreTemp" class="m-val warning">0.00 K</span>
+                    <span id="coreTemp" class="m-val warning">300.00 K</span>
                 </div>
                 <div class="metric-item">
                     <span class="m-label">CONFINEMENT:</span>
@@ -261,7 +261,7 @@
                 <div class="control-card">
                     <div class="card-head">
                         <span>Poloidal Divertor Fields</span>
-                        <span class="badge" id="badgePoloidal">0 T</span>
+                        <span class="badge" id="badgePoloidal">0.0 T</span>
                     </div>
                     <div class="slider-group">
                         <label>Flux Compression <span id="valPoloidal">0.0 T</span></label>
@@ -322,7 +322,7 @@
                         <span class="badge active" id="interlockBadge">ARMED & ACTIVE</span>
                     </div>
                     <div style="font-size: 8.5px; color: #78909c; font-family: var(--font-mono);">
-                        * Tự động ngắt điện từ trường và phun boron dập plasma nếu nhiệt độ vượt ngưỡng giới hạn vật liệu ($1.8 \times 10^8$ K).
+                        * Tự động ngắt điện từ trường và xả plasma nếu nhiệt độ vượt ngưỡng giới hạn vật liệu (1.8 × 10⁸ K).
                     </div>
                 </div>
             </div>
@@ -433,7 +433,7 @@
             const p = document.createElement('p');
             if(type === 'err') p.className = 'err';
             if(type === 'wrn') p.className = 'wrn';
-            p.textContent = `> [${new Date().toTimeString().split(' ')[0}}] ${msg}`;
+            p.textContent = `> [${new Date().toTimeString().split(' ')[0]}] ${msg}`;
             terminalScreen.appendChild(p);
             terminalScreen.scrollTop = terminalScreen.scrollHeight;
         }
@@ -474,130 +474,128 @@
                 logMessage("Không thể khởi động mồi lửa! Từ trường Toroidal quá yếu (< 70 kA).", 'err');
                 return;
             }
-            if(state.fuelRate === <span class="math-inline">0\) \{
-logMessage\("Chưa cấp nhiên liệu D-T\! Vui lòng tăng lưu lượng bơm khí nhiên liệu\.", 'wrn'\);
-return;
-            \}
-            state.plasmaActive \= true;
-            state.temperature \= 1.25e8; // 125 triệu độ K
-            state.confinement \= 98.5;
-            plasmaEffect.classList.add\('active'\);
-            statusIndicator.classList.add\('active'\);
-            hudStatus.textContent \= "REACTOR CORE: PLASMA CONFINED";
-            logMessage\("Mồi lửa thành công! Phản ứng tổng hợp hạt nhân D-T đã bắt đầu\."\);
-        \});
-        btnNBI.addEventListener\('click', \(\) \=\> \{
-            if\(\!state\.plasmaActive\) \{
-                logMessage\("Không thể kích hoạt NBI Heating khi lò đang tắt\!", 'err'\);
+            if(state.fuelRate === 0) {
+                logMessage("Chưa cấp nhiên liệu D-T! Vui lòng tăng lưu lượng bơm khí nhiên liệu.", 'wrn');
                 return;
-            \}
-            state.nbiActive \= true;
-            state.temperature \+= 4.0e7;
-            logMessage\("Đã kích hoạt Neutral Beam Injection (NBI). Nhiệt độ tăng vọt\!"\);
-            setTimeout\(\(\) \=\> \{
-                state.nbiActive \= false;
-            \}, 4000\);
-        \});
-        btnPurge.addEventListener\('click', \(\) \=\> \{
-            sliderFuel.value \= 0;
-            state.fuelRate \= 0;
-            valFuel.textContent \= "0 mg/s";
-            badgeFuel.textContent \= "PURGED";
-            badgeFuel.className \= 'badge warning';
-            logMessage\("Đã xả khí khoang buồng phản ứng (Gas Purging active)\."\);
-        \});
-        btnScram.addEventListener\('click', \(\) \=\> \{
-            triggerScram\("Người vận hành kích hoạt nút khẩn cấp SCRAM thủ công\."\);
-        \});
-        function triggerScram\(reason\) \{
-            state.plasmaActive \= false;
-            state.nbiActive \= false;
-            state.temperature \= 300;
-            state.confinement \= 0;
-            state.energyGW \= 0;
-            state.unstable \= false;
+            }
+            state.plasmaActive = true;
+            state.temperature = 1.25e8; // 125 triệu độ K
+            state.confinement = 98.5;
+            plasmaEffect.classList.add('active');
+            statusIndicator.classList.add('active');
+            hudStatus.textContent = "REACTOR CORE: PLASMA CONFINED";
+            logMessage("Mồi lửa thành công! Phản ứng tổng hợp hạt nhân D-T đã bắt đầu.");
+        });
+
+        btnNBI.addEventListener('click', () => {
+            if(!state.plasmaActive) {
+                logMessage("Không thể kích hoạt NBI Heating khi lò đang tắt!", 'err');
+                return;
+            }
+            state.nbiActive = true;
+            state.temperature += 4.0e7;
+            logMessage("Đã kích hoạt Neutral Beam Injection (NBI). Nhiệt độ tăng vọt!");
+            setTimeout(() => {
+                state.nbiActive = false;
+            }, 4000);
+        });
+
+        btnPurge.addEventListener('click', () => {
+            sliderFuel.value = 0;
+            state.fuelRate = 0;
+            valFuel.textContent = "0 mg/s";
+            badgeFuel.textContent = "PURGED";
+            badgeFuel.className = 'badge warning';
+            logMessage("Đã xả khí khoang buồng phản ứng (Gas Purging active).");
+        });
+
+        btnScram.addEventListener('click', () => {
+            triggerScram("Người vận hành kích hoạt nút khẩn cấp SCRAM thủ công.");
+        });
+
+        function triggerScram(reason) {
+            state.plasmaActive = false;
+            state.nbiActive = false;
+            state.temperature = 300;
+            state.confinement = 0;
+            state.energyGW = 0;
+            state.unstable = false;
             
-            sliderToroidal.value \= 0; valToroidal.textContent \= "0 kA"; badgeToroidal.textContent \= "0 kA"; badgeToroidal.className \= 'badge';
-            sliderPoloidal.value \= 0; valPoloidal.textContent \= "0.0 T"; badgePoloidal.textContent \= "0.0 T";
-            sliderFuel.value \= 0; valFuel.textContent \= "0 mg/s"; badgeFuel.textContent \= "CLOSED"; badgeFuel.className \= 'badge';
+            sliderToroidal.value = 0; valToroidal.textContent = "0 kA"; badgeToroidal.textContent = "0 kA"; badgeToroidal.className = 'badge';
+            sliderPoloidal.value = 0; valPoloidal.textContent = "0.0 T"; badgePoloidal.textContent = "0.0 T";
+            sliderFuel.value = 0; valFuel.textContent = "0 mg/s"; badgeFuel.textContent = "CLOSED"; badgeFuel.className = 'badge';
             
-            plasmaEffect.classList.remove\('active', 'unstable'\);
-            statusIndicator.classList.remove\('active', 'danger'\);
-            magStatusText.className \= 'badge warning'; magStatusText.textContent \= 'OFFLINE';
-            hudStatus.textContent \= "REACTOR CORE: SHUTDOWN / COLD";
+            plasmaEffect.classList.remove('active', 'unstable');
+            statusIndicator.classList.remove('active', 'danger');
+            magStatusText.className = 'badge warning'; magStatusText.textContent = 'OFFLINE';
+            hudStatus.textContent = "REACTOR CORE: SHUTDOWN / COLD";
             
-            logMessage\("🚨 SCRAM KHẨN CẤP: " \+ reason, 'err'\);
-        \}
-        // Main Simulation Loop (100ms ticks)
-        setInterval\(\(\) \=\> \{
-            if \(state\.plasmaActive\) \{
-                // Biến động nhiệt độ dựa trên nhiên liệu và NBI
-                let targetTemp \= 1.0e8 \+ \(state\.fuelRate \* 8.0e5\) \+ \(state\.nbiActive ? 5.0e7 \: 0\);
-                state.temperature \+\= \(targetTemp \- state.temperature\) \* 0.1;
+            logMessage("🚨 SCRAM KHẨN CẤP: " + reason, 'err');
+        }
+
+        // Main Simulation Loop (300ms ticks)
+        setInterval(() => {
+            if (state.plasmaActive) {
+                let targetTemp = 1.0e8 + (state.fuelRate * 8.0e5) + (state.nbiActive ? 5.0e7 : 0);
+                state.temperature += (targetTemp - state.temperature) * 0.1;
                 
-                // Kiểm soát độ ổn định từ trường so với nhiệt độ
-                let magCapacity \= state.tfCurrent \* 1.4 \+ parseFloat\(state.poloidalFlux\) \* 8;
-                if \(state.temperature \> magCapacity \* 1.2e6\) \{
-                    state.confinement \-= 0.8;
-                    if\(\!state\.unstable\) \{
-                        state.unstable \= true;
-                        plasmaEffect.classList.add\('unstable'\);
-                        statusIndicator.classList.add\('danger'\);
-                        logMessage\("CẢNH BÁO: Từ trường không đủ giữ plasma\! Nguy cơ bùng nổ vách lò\!", 'wrn'\);
-                    \}
-                \} else \{
-                    if\(state.confinement < 98.0\) state.confinement \+\= 0.5;
-                    if\(state.unstable\) \{
-                        state.unstable \= false;
-                        plasmaEffect.classList.remove\('unstable'\);
-                        statusIndicator.classList.remove\('danger'\);
-                        logMessage\("Ổn định từ trường đã được thiết lập lại an toàn\."\);
-                    \}
-                \}
+                let magCapacity = state.tfCurrent * 1.4 + parseFloat(state.poloidalFlux) * 8;
+                if (state.temperature > magCapacity * 1.2e6) {
+                    state.confinement -= 0.8;
+                    if(!state.unstable) {
+                        state.unstable = true;
+                        plasmaEffect.classList.add('unstable');
+                        statusIndicator.classList.add('danger');
+                        logMessage("CẢNH BÁO: Từ trường không đủ giữ plasma! Nguy cơ bùng nổ vách lò.", 'wrn');
+                    }
+                } else {
+                    if(state.confinement < 98.0) state.confinement += 0.5;
+                    if(state.unstable) {
+                        state.unstable = false;
+                        plasmaEffect.classList.remove('unstable');
+                        statusIndicator.classList.remove('danger');
+                        logMessage("Ổn định từ trường đã được thiết lập lại an toàn.");
+                    }
+                }
                 
-                // Tự động ngắt nếu quá nhiệt thảm khốc (> 1.8e8 K)
-                if \(state.temperature \> 1.8e8\) \{
-                    triggerScram\("Nhiệt độ lõi vượt ngưỡng giới hạn vật liệu chịu nhiệt Tungsten ($1.8 \times 10^8$ K)\."\);
+                if (state.temperature > 1.8e8) {
+                    triggerScram("Nhiệt độ lõi vượt ngưỡng giới hạn vật liệu chịu nhiệt Tungsten (1.8 × 10⁸ K).");
                     return;
-                \}
+                }
                 
-                // Tính toán công suất năng lượng tạo ra (GW)
-                state.energyGW \= \(\(state.temperature / 1e8\) \* \(state.fuelRate / 10\) \* 1.2\)\.toFixed\(2\);
-                state.wallFluxVal \= \(\(state.energyGW \* 1.5\) \+ Math\.random\(\)*0.4\)\.toFixed\(1\);
-                state.wallIntegrity \= Math\.max\(0, \(100 \- \(state.energyGW * 0.05\)\)\)\.toFixed\(1\);
+                state.energyGW = ((state.temperature / 1e8) * (state.fuelRate / 10) * 1.2).toFixed(2);
+                state.wallFluxVal = ((state.energyGW * 1.5) + Math.random()*0.4).toFixed(1);
+                state.wallIntegrity = Math.max(0, (100 - (state.energyGW * 0.05))).toFixed(1);
                 
-                // Cập nhật giao diện
-                coreTempEl.textContent \= \(state.temperature / 1e8\)\.toFixed\(2\) \+ " × 10⁸ K";
-                magConfEl.textContent \= state.confinement\.toFixed\(1\) \+ "%";
-                energyOutput.textContent \= state.energyGW;
-                wallFluxEl.textContent \= state.wallFluxVal \+ " MW/m²";
-                badgeWall.textContent \= state.wallIntegrity \+ "%";
+                coreTempEl.textContent = (state.temperature / 1e8).toFixed(2) + " × 10⁸ K";
+                magConfEl.textContent = state.confinement.toFixed(1) + "%";
+                energyOutput.textContent = state.energyGW;
+                wallFluxEl.textContent = state.wallFluxVal + " MW/m²";
+                badgeWall.textContent = state.wallIntegrity + "%";
                 
-                coolantFlow.textContent \= Math\.floor\(1200 \+ state.energyGW * 200\) \+ " L/s";
-                superconState.textContent \= state.temperature \> 1.5e8 ? "CRITICAL COOLING" : "STABLE";
+                coolantFlow.textContent = Math.floor(1200 + state.energyGW * 200) + " L/s";
+                superconState.textContent = state.temperature > 1.5e8 ? "CRITICAL COOLING" : "STABLE";
+                badgeNeutron.textContent = Math.floor(state.energyGW * 4.2e18) + " n/s";
                 
-                badgeNeutron.textContent \= Math\.floor\(state.energyGW \* 4.2e18\) \+ " n/s";
+                const bars = neutronGraph.querySelectorAll('.bar-line');
+                bars.forEach(bar => {
+                    let h = Math.floor(Math.random() * 60 + state.energyGW * 15);
+                    bar.style.height = Math.min(100, h) + "%";
+                    if(state.unstable) bar.classList.add('alert');
+                    else bar.classList.remove('alert');
+                });
                 
-                // Cập nhật biểu đồ neutron động
-                const bars \= neutronGraph.querySelectorAll\('.bar-line'\);
-                bars\.forEach\(bar \=\> \{
-                    let h \= Math\.floor\(Math\.random\(\) \* 60 \+ state.energyGW \* 15\);
-                    bar.style.height \= Math\.min\(100, h\) \+ "%\";
-                    if\(state.unstable\) bar.classList.add\('alert'\);
-                    else bar.classList.remove\('alert'\);
-                \});
-                
-                hudSubStatus.textContent \= state.unstable ? "⚠️ PLASMA DISRUPTION WARNING" : \`CONFINEMENT FIELD: STABLE (\${state.tfCurrent} kA)\`;
-            \} else \{
-                coreTempEl.textContent \= "300.00 K";
-                magConfEl.textContent \= "0.0%";
-                energyOutput.textContent \= "0.00";
-                wallFluxEl.textContent \= "0.0 MW/m²";
-                coolantFlow.textContent \= "0 L/s";
-                superconState.textContent \= "STANDBY";
-                badgeNeutron.textContent \= "0 n/s";
-            \}
-        \}, 300);
+                hudSubStatus.textContent = state.unstable ? "⚠️ PLASMA DISRUPTION WARNING" : `CONFINEMENT FIELD: STABLE (${state.tfCurrent} kA)`;
+            } else {
+                coreTempEl.textContent = "300.00 K";
+                magConfEl.textContent = "0.0%";
+                energyOutput.textContent = "0.00";
+                wallFluxEl.textContent = "0.0 MW/m²";
+                coolantFlow.textContent = "0 L/s";
+                superconState.textContent = "STANDBY";
+                badgeNeutron.textContent = "0 n/s";
+            }
+        }, 300);
     </script>
 </body>
 </html>
